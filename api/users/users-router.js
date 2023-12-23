@@ -24,15 +24,20 @@ router.get('/:id', validateUserId, (req, res, next) => {
   .catch(next)
 });
 
-router.post('/', (req, res) => {
-  // RETURN THE NEWLY CREATED USER OBJECT
-  // this needs a middleware to check that the request body is valid
+router.post('/', validateUser, (req, res, next) => {
+  User.insert({name: req.name})
+  .then(newUser =>{
+    res.json(newUser)
+  })
+  .catch(next)
 });
 
-router.put('/:id', (req, res) => {
-  // RETURN THE FRESHLY UPDATED USER OBJECT
-  // this needs a middleware to verify user id
-  // and another middleware to check that the request body is valid
+router.put('/:id', validateUserId,validateUser, (req, res,next) => {
+  User.update(req.params.id, {name: req.name})
+  .then(updatedUser =>{
+    res.json(updatedUser)
+  })
+  .catch(next)
 });
 
 router.delete('/:id', (req, res) => {
