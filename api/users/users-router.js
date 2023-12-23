@@ -1,17 +1,27 @@
 const express = require('express');
-
+const {validateUserId,validateUser,validatePost} = require('../middleware/middleware')
 // You will need `users-model.js` and `posts-model.js` both
 // The middleware functions also need to be required
+const User = require('./users-model');
+const Post = require('../posts/posts-model');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  // RETURN AN ARRAY WITH ALL THE USERS
+router.get('/', (req, res, next) => {
+  User.get()
+  .then(users =>{
+    res.json(users)
+  })
+  .catch(next)
+
 });
 
-router.get('/:id', (req, res) => {
-  // RETURN THE USER OBJECT
-  // this needs a middleware to verify user id
+router.get('/:id', validateUserId, (req, res, next) => {
+  User.getById(req.params.id)
+  .then(user =>{
+   res.json(user)
+  })
+  .catch(next)
 });
 
 router.post('/', (req, res) => {
@@ -41,4 +51,13 @@ router.post('/:id/posts', (req, res) => {
   // and another middleware to check that the request body is valid
 });
 
-// do not forget to export the router
+
+router.use((err, req, res, next) =>{ //eslint-disable-line
+  res.status(err.status || 500).json({
+    customMessage: "Something tagic inside posts router happened",
+    message: err.message,
+    err: err.stack,
+  })
+})
+
+module.exports = router
